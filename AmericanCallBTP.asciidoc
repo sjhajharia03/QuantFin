@@ -1,0 +1,151 @@
++*In[2]:*+
+[source, ipython3]
+----
+import numpy as np
+import yfinance as yf
+----
+
+
++*In[3]:*+
+[source, ipython3]
+----
+opt = yf.Ticker("NVDA")
+opt = opt.option_chain(date= "2024-12-20")
+opt.calls
+----
+
+
++*Out[3]:*+
+----
+[cols=",,,,,,,,,,,,,,",options="header",]
+|===
+| |contractSymbol |lastTradeDate |strike |lastPrice |bid |ask |change
+|percentChange |volume |openInterest |impliedVolatility |inTheMoney
+|contractSize |currency
+|0 |NVDA241220C00000500 |2024-06-21 14:13:44+00:00 |0.5 |126.62 |123.85
+|124.45 |0.00 |0.0 |1.0 |4491.0 |4.734379 |True |REGULAR |USD
+
+|1 |NVDA241220C00001000 |2024-06-10 14:43:24+00:00 |1.0 |120.14 |123.40
+|123.95 |0.00 |0.0 |NaN |110.0 |3.835938 |True |REGULAR |USD
+
+|2 |NVDA241220C00001500 |2024-06-17 04:01:42+00:00 |1.5 |88.69 |NaN |NaN
+|0.00 |0.0 |NaN |NaN |0.000000 |True |REGULAR |USD
+
+|3 |NVDA241220C00002000 |2024-06-10 14:34:10+00:00 |2.0 |118.59 |122.40
+|122.95 |0.00 |0.0 |NaN |260.0 |3.054690 |True |REGULAR |USD
+
+|4 |NVDA241220C00003000 |2024-06-10 14:31:34+00:00 |3.0 |117.40 |121.45
+|122.25 |0.00 |0.0 |NaN |31.0 |2.986331 |True |REGULAR |USD
+
+|... |... |... |... |... |... |... |... |... |... |... |... |... |...
+|...
+
+|455 |NVDA241220C02300000 |2024-06-07 16:25:09+00:00 |2300.0 |13.15
+|12.15 |12.70 |13.15 |NaN |2.0 |0.0 |2.449772 |False |REGULAR |USD
+
+|456 |NVDA241220C02350000 |2024-06-07 14:41:12+00:00 |2350.0 |11.80
+|11.00 |11.50 |11.80 |NaN |1.0 |8.0 |2.410282 |False |REGULAR |USD
+
+|457 |NVDA241220C02400000 |2024-06-07 19:48:41+00:00 |2400.0 |10.65
+|10.00 |10.45 |10.65 |NaN |159.0 |165.0 |2.374638 |False |REGULAR |USD
+
+|458 |NVDA241220C02450000 |2024-06-07 15:19:05+00:00 |2450.0 |9.30 |9.10
+|9.55 |9.30 |NaN |5.0 |NaN |2.342350 |False |REGULAR |USD
+
+|459 |NVDA241220C02500000 |2024-06-07 19:59:54+00:00 |2500.0 |8.75 |8.30
+|8.70 |8.75 |NaN |192.0 |NaN |2.311406 |False |REGULAR |USD
+|===
+
+460 rows × 14 columns
+----
+
+
++*In[19]:*+
+[source, ipython3]
+----
+S0 = 517
+K= 600
+T= 0.25
+r= 0.045
+sig= 0.0006
+N= 1000
+opttype = 'C'
+----
+
+
++*In[20]:*+
+[source, ipython3]
+----
+def binomial_tree_slow (K, T, S0, r, N, sig, opttype= 'P'):
+   #precomputing constraints 
+    dt= T/N
+    nu= r - 0.5*sig**2
+    u = np.exp(nu*dt)+ sig*np.sqrt(dt)
+    d= u = np.exp(nu*dt)- sig*np.sqrt(dt)
+    q= 0.5
+    disc = np.exp (-r*dt)
+    
+    #initial asset prices at maturity- time step N 
+    S = np.zeros (N+1)
+    S[0]= S0*d**N
+    for j in range(1,N+1):
+        S[j]= S0 * u**j * d**(N-j)
+        
+    # initialize option values at maturity 
+    C= np.zeros (N+1)
+    for j in range(0,N+1):
+        if opttype== 'P':
+            C[j]= max(0,K- S[j])
+        else: 
+            C[j]= max(0,S[j]-K)
+        
+    #Step backwards through tree 
+    for i in np.arange(N-1,-1,-1):
+        for j in range (0,i+1):
+            S= S0* u**j * d**(i-j)
+            C[j] = disc * (q*C[j+1] + (1-q)*C[j] )
+            if opttype== 'P':
+                C[j]= max(C[j],K-S)
+            else: 
+                C[j]= max(C[j],S-K)
+            
+    return C[0]
+    
+
+binomial_tree_slow (K, T, S0, r, N, sig, opttype= 'P')
+        
+----
+
+
++*Out[20]:*+
+----83.0----
+
+
++*In[9]:*+
+[source, ipython3]
+----
+
+----
+
+
++*Out[9]:*+
+----
+
+    ---------------------------------------------------------------------------
+
+    NameError                                 Traceback (most recent call last)
+
+    <ipython-input-9-eb36021ff03a> in <module>
+    ----> 1 print (C)
+    
+
+    NameError: name 'C' is not defined
+
+----
+
+
++*In[ ]:*+
+[source, ipython3]
+----
+
+----
