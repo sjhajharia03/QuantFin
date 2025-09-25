@@ -1,0 +1,25 @@
+features:
+  donch_window: 20
+  contraction_threshold: 0.75
+  max_donch_width_pct: 0.0035
+  slope_ema_lookback: 9
+  armed_agree_count: 3
+  break_bps: 10
+  bar_tr_min_atr: 1.0
+
+iv:
+  lookback_minutes: 60
+  max_iv_percentile_for_fire: 85
+
+ops:
+  heartbeat_warn_s: 5
+  heartbeat_error_s: 15
+  cooldown_min: 10
+
+session:
+  tz: "Asia/Kolkata"
+  open: "09:15"
+  close: "15:30"
+  open_embargo_min: 15
+  close_embargo_min: 20
+  expiry_afternoon_strict_after: "14:30"
